@@ -26,7 +26,7 @@ function sentences(text: string): Span[] {
 }
 
 export const clock = (ts: number) =>
-  new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  new Date(ts).toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true });
 
 const withTimeout = <T,>(p: Promise<T>, ms: number) =>
   Promise.race([p, new Promise<T>((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
