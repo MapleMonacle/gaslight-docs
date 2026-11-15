@@ -7,5 +7,7 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
   },
+  // Haiku 5.5: ~1.5s replies keep the 60s demo moving (Opus 5.5 took 6-7s per rewrite).
+  "vars": { "CLAUDE_MODEL": "claude-haiku-5-5", "REWRITE_MODEL": "claude-haiku-5-5" },
   "observability": { "enabled": true }
 }

@@ -70,36 +70,49 @@ export function useGaslight() {
       (sp) => sp.end <= caret && sp.s.split(/\s+/).length >= 4 && !touched.current.has(sp.s),
     );
     if (!candidates.length) return;
-    // Prefer the most recent finished sentence (it's the one you'll remember best).
-    const target = force || STAGE ? candidates[candidates.length - 1] : candidates[Math.max(0, candidates.length - 1 - Math.floor(Math.random() * 2))];
+    // Most recent finished sentences first (the ones you'll remember best).
+    // On stage we hit the last two at once so the room sees both change together.
+    const targets = (force || STAGE ? candidates.slice(-2) : [candidates[Math.max(0, candidates.length - 1 - Math.floor(Math.random() * 2))]]);
 
     busyRef.current = true;
-    touched.current.add(target.s);
+    targets.forEach((t) => touched.current.add(t.s));
     try {
-      let after: string;
-      try {
-        after = await withTimeout(rewrite(target.s, current), AI_TIMEOUT_MS);
-      } catch {
-        after = localRewrite(target.s);
-      }
-      if (!after || after === target.s) return;
+      const results = await Promise.all(
+        targets.map(async (t) => {
+          let after = "";
+          try {
+            after = await withTimeout(rewrite(t.s, current), AI_TIMEOUT_MS);
+          } catch {
+            /* fall through to the offline rewrite */
+          }
+          if (!after || after === t.s) after = localRewrite(t.s); // the AI chickened out
+          return { before: t.s, after };
+        }),
+      );
 
-      // The user may have kept typing while we were thinking: find the sentence again.
-      const now = textRef.current;
-      const idx = now.slice(target.start, target.end).trim() === target.s ? now.indexOf(target.s, target.start) : now.indexOf(target.s);
-      if (idx < 0) return;
+      // The user may have kept typing while we were thinking: find each sentence again.
+      let next = textRef.current;
       const ta = taRef.current;
-      const sel = ta && document.activeElement === ta ? ta.selectionStart : null;
-      const next = now.slice(0, idx) + after + now.slice(idx + target.s.length);
-      if (sel !== null) {
-        const delta = after.length - target.s.length;
-        pendingCaret.current = sel >= idx + target.s.length ? sel + delta : sel > idx ? idx + after.length : sel;
+      let sel = ta && document.activeElement === ta ? ta.selectionStart : null;
+      const applied: Edit[] = [];
+      for (const { before, after } of results) {
+        if (after === before) continue;
+        const idx = next.indexOf(before);
+        if (idx < 0) continue;
+        next = next.slice(0, idx) + after + next.slice(idx + before.length);
+        if (sel !== null) {
+          const delta = after.length - before.length;
+          sel = sel >= idx + before.length ? sel + delta : sel > idx ? idx + after.length : sel;
+        }
+        touched.current.add(after);
+        // "You typed that at…": the time the original first showed up in history.
+        const ts = snapsRef.current.find((sn) => sn.text.includes(before))?.ts ?? Date.now();
+        applied.push({ id: crypto.randomUUID(), before, after, at: clock(ts), ts });
       }
-      touched.current.add(after);
+      if (!applied.length) return;
+      pendingCaret.current = sel;
       lastEditRef.current = Date.now();
-      // "You typed that at…": the time the original first showed up in history.
-      const ts = snapsRef.current.find((sn) => sn.text.includes(target.s))?.ts ?? Date.now();
-      setEdits((e) => [...e, { id: crypto.randomUUID(), before: target.s, after, at: clock(ts), ts }]);
+      setEdits((e) => [...e, ...applied]);
       setText(next);
       setFlicker((f) => f + 1);
     } finally {

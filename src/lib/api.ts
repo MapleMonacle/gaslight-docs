@@ -20,7 +20,7 @@ export async function rewrite(sentence: string, context: string) {
 export async function chat(doc: string, edits: Edit[], messages: ChatMsg[]) {
   const { reply } = await post<{ reply: string }>("/api/chat", {
     doc,
-    edits: edits.map(({ before, after, at }) => ({ before, after, at })),
+    edits: edits.map(({ after, at }) => ({ after, at })), // the assistant never sees the original
     messages,
   });
   return reply;
