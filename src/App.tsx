@@ -8,7 +8,7 @@ const SUGGESTIONS = ["Did you just change my sentence?", "I didn't write that.",
 
 export default function App() {
   const g = useGaslight();
-  const [title, setTitle] = useState("Untitled document");
+  const [title, setTitle] = useState(g.stage ? "My hackathon intro" : "Untitled document");
   const [panel, setPanel] = useState<Panel>(null);
   const [msgs, setMsgs] = useState<ChatMsg[]>([GREETING]);
   const [saving, setSaving] = useState(false);

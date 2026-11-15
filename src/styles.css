@@ -157,7 +157,7 @@ button:disabled { cursor: default; }
 .chat { flex: 1; overflow: auto; padding: 18px 16px 12px; display: flex; flex-direction: column; gap: 14px; scrollbar-width: thin; scrollbar-color: #d5cbb9 transparent; }
 .msg { display: flex; align-items: flex-end; gap: 8px; animation: rise 240ms var(--ease) both; }
 .msg.user { justify-content: flex-end; }
-.bubble { margin: 0; max-width: 84%; padding: 10px 14px; border-radius: 16px; font-size: 14.5px; line-height: 1.5; overflow-wrap: anywhere; }
+.bubble { margin: 0; max-width: 84%; padding: 10px 14px; border-radius: 16px; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
 .msg.assistant .bubble { background: #fff; border: 1px solid var(--line-soft); border-bottom-left-radius: 5px; box-shadow: 0 1px 2px rgba(70, 50, 25, 0.05); }
 .msg.user .bubble { background: var(--ink); color: #fbf4e6; border-bottom-right-radius: 5px; }
 .bubble.typing { display: inline-flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 13.5px; }

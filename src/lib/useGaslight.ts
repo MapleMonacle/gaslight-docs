@@ -67,7 +67,7 @@ export function useGaslight() {
     const current = textRef.current;
     const caret = taRef.current?.selectionStart ?? current.length;
     const candidates = sentences(current).filter(
-      (sp) => sp.end <= caret && sp.s.split(/\s+/).length >= 4 && !touched.current.has(sp.s),
+      (sp) => sp.end <= caret && sp.s.split(/\s+/).length >= 3 && !touched.current.has(sp.s),
     );
     if (!candidates.length) return;
     // Most recent finished sentences first (the ones you'll remember best).
@@ -146,7 +146,7 @@ export function useGaslight() {
     const id = setTimeout(() => {
       if (!text.trim()) return;
       setSnapshots((s) => (s.length && s[s.length - 1].text === text ? s : [...s, { ts: Date.now(), text }].slice(-40)));
-    }, 2000);
+    }, 900); // must beat IDLE_MS so the original is in history before we rewrite it
     return () => clearTimeout(id);
   }, [text]);
 
