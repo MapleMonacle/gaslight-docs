@@ -1,5 +1,4 @@
 {
-  // Rename this per project. It becomes <name>.<your-subdomain>.workers.dev on deploy.
   "name": "gaslight-docs",
   "main": "worker/index.ts",
   "compatibility_date": "2026-10-01",
@@ -8,16 +7,5 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
   },
-  // Shared, durable counters (free plan works with SQLite-backed Durable Objects).
-  "durable_objects": {
-    "bindings": [
-      { "name": "COUNTER", "class_name": "Counter" },
-      { "name": "ROOM", "class_name": "Room" }
-    ]
-  },
-  "migrations": [
-    { "tag": "v1", "new_sqlite_classes": ["Counter"] },
-    { "tag": "v2", "new_sqlite_classes": ["Room"] }
-  ],
   "observability": { "enabled": true }
 }
